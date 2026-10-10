@@ -3,11 +3,18 @@ const router = express.Router();
 const {
   obtenerClientes,
   obtenerClientePorId,
-  crearCliente
+  crearCliente,
+  actualizarCliente,
+  eliminarCliente
 } = require('../controllers/clienteController');
 
+const validarCliente = require('../middleware/validarCliente');
+
+// Rutas completas CRUD
 router.get('/', obtenerClientes);
 router.get('/:id', obtenerClientePorId);
-router.post('/', crearCliente);
+router.post('/', validarCliente, crearCliente);
+router.put('/:id', validarCliente, actualizarCliente);
+router.delete('/:id', eliminarCliente);
 
 module.exports = router;
