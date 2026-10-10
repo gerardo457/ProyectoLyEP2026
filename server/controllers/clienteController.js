@@ -29,7 +29,6 @@ const obtenerClientePorId = async (req, res) => {
   }
 };
 
-
 const crearCliente = async (req, res) => {
   try {
     const { nombre, apellido, email, telefono, ciudad, calle, numero, codigoPostal } = req.body;
@@ -61,8 +60,50 @@ const crearCliente = async (req, res) => {
   }
 };
 
+// --- FUNCIONES AGREGADAS POR PABLO (Actualizar y Eliminar) ---
+
+const actualizarCliente = async (req, res) => {
+  try {
+    const clienteActualizado = await Cliente.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!clienteActualizado) {
+      return res.status(404).json({ mensaje: 'Cliente no encontrado para actualizar' });
+    }
+
+    res.status(200).json(clienteActualizado);
+  } catch (error) {
+    res.status(500).json({ 
+      mensaje: 'Error al actualizar el cliente', 
+      error: error.message 
+    });
+  }
+};
+
+const eliminarCliente = async (req, res) => {
+  try {
+    const clienteEliminado = await Cliente.findByIdAndDelete(req.params.id);
+
+    if (!clienteEliminado) {
+      return res.status(404).json({ mensaje: 'Cliente no encontrado para eliminar' });
+    }
+
+    res.status(200).json({ mensaje: 'Cliente eliminado correctamente' });
+  } catch (error) {
+    res.status(500).json({ 
+      mensaje: 'Error al eliminar el cliente', 
+      error: error.message 
+    });
+  }
+};
+
 module.exports = {
   obtenerClientes,
   obtenerClientePorId,
-  crearCliente
+  crearCliente,
+  actualizarCliente,
+  eliminarCliente
 };
