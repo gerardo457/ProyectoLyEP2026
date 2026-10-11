@@ -1,7 +1,7 @@
 import '../css/formcliente.css'
 import { useState } from "react";
 import { Form, Button, Alert, Spinner } from "react-bootstrap";
-import clientesService from "../services/clientesService";
+import clientesService from "../services/ClientesService";
 
 const FormCliente = () => {
 
@@ -42,7 +42,7 @@ const FormCliente = () => {
     }
 
     setErrores(nuevosErrores);
-    return Object.keys(nuevosErrores).length === 0 && Object.keys(errores).length >= 0;
+    return Object.keys(nuevosErrores).length === 0;
     };
 
     const manejarSubmit = async (e) => {
@@ -57,15 +57,10 @@ const FormCliente = () => {
         } 
 
         const nuevoCliente = {
+            nombre: nombre.trim(),
             email: email.trim(),
-            name: {
-                firstname: nombre.trim(),
-                lastname: "-"
-            },
-            address: {
-                city: ciudad.trim()
-            },
-            phone: telefono.trim()
+            telefono: telefono.trim(),
+            ciudad: ciudad.trim()
         };
 
     try {
@@ -73,7 +68,7 @@ const FormCliente = () => {
 
             const respuesta = await clientesService.crearCliente(nuevoCliente);
 
-            setMensaje(`Cliente creado correctamente. ID: ${respuesta.id}`);
+            setMensaje(`Cliente creado correctamente. ID: ${respuesta._id || respuesta.id}`);
 
             setNombre("");
             setEmail("");
@@ -156,7 +151,7 @@ const FormCliente = () => {
                 {loading ? <Spinner size="sm" /> : "Guardar Cliente"}
             </Button>
         </Form>
-           
+            
             {
                 mensaje &&
                 <Alert

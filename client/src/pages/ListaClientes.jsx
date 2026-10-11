@@ -2,6 +2,7 @@ import "../css/listaclientes.css"
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import FormCliente from "../components/FormCliente";
+import ClientesService from "../services/ClientesService";
 
 const ListaClientes = () => {
   const [clientes, setClientes] = useState([]);
@@ -10,13 +11,7 @@ const ListaClientes = () => {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch("https://fakestoreapi.com/users")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Error al obtener clientes");
-        }
-        return res.json();
-      })
+    ClientesService.obtenerClientes()
       .then((data) => {
         setClientes(data);
         setLoading(false);
@@ -29,12 +24,8 @@ const ListaClientes = () => {
 
   const clientesFiltrados = clientes.filter(
     (cliente) =>
-      cliente.name.lastname
-        .toLowerCase()
-        .includes(busqueda.toLowerCase()) ||
-      cliente.address.city
-        .toLowerCase()
-        .includes(busqueda.toLowerCase())
+      (cliente.nombre && cliente.nombre.toLowerCase().includes(busqueda.toLowerCase())) ||
+      (cliente.ciudad && cliente.ciudad.toLowerCase().includes(busqueda.toLowerCase()))
   );
 
   if (loading) {
@@ -62,7 +53,7 @@ const ListaClientes = () => {
         <input
           className="buscador"
           type="text"
-          placeholder="Buscar por apellido o ciudad"
+          placeholder="Buscar por nombre o ciudad"
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
@@ -72,6 +63,7 @@ const ListaClientes = () => {
         </p>
 
       </div>
+
       <table className="tabla-clientes">
 
         <thead>
@@ -88,24 +80,22 @@ const ListaClientes = () => {
         <tbody>
 
           {clientesFiltrados.map((cliente) => (
-            <tr key={cliente.id}>
+            <tr key={cliente._id || cliente.id}>
 
-              <td>{cliente.id}</td>
+              <td>{cliente._id || cliente.id}</td>
 
-              <td>
-                {cliente.name.firstname} {cliente.name.lastname}
-              </td>
+              <td>{cliente.nombre}</td>
 
               <td>{cliente.email}</td>
 
-              <td>{cliente.phone}</td>
+              <td>{cliente.telefono}</td>
 
-              <td>{cliente.address.city}</td>
+              <td>{cliente.ciudad}</td>
 
               <td>
                 <Link
                   className="btn-ficha"
-                  to={`/clientes/${cliente.id}`}
+                  to={`/clientes/${cliente._id || cliente.id}`}
                 >
                   Ver Ficha Completa
                 </Link>

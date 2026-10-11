@@ -2,9 +2,10 @@ import '../css/detallecliente.css'
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useAutorizaciones from "../hooks/useAutorizaciones";
+import ClientesService from "../services/ClientesService";
 
 const DetalleCliente = () => {
- const { id } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const { admin } = useAutorizaciones();
   const role = admin?.sector;
@@ -13,31 +14,24 @@ const DetalleCliente = () => {
   const [mensaje, setMensaje] = useState("");
 
   useEffect(() => {
-    fetch(`https://fakestoreapi.com/users/${id}`)
-      .then((res) => res.json())
-      .then((data) => setCliente(data));
+    ClientesService.obtenerClientePorId(id)
+      .then((data) => setCliente(data))
+      .catch(() => setMensaje("Error al obtener los datos del cliente"));
   }, [id]);
 
   const eliminarCliente = async () => {
     try {
-      const respuesta = await fetch(
-        `https://fakestoreapi.com/users/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      await ClientesService.eliminarCliente(id);
+      setMensaje("Cliente eliminado correctamente");
 
-      if (respuesta.ok) {
-        setMensaje("Cliente eliminado correctamente");
-
-        setTimeout(() => {
-          navigate("/clientes");
-        }, 2000);
-      }
+      setTimeout(() => {
+        navigate("/clientes");
+      }, 2000);
     } catch (error) {
       setMensaje("Error al eliminar cliente");
     }
   };
+
   if (!cliente) {
     return <h2>Cargando cliente...</h2>;
   }
@@ -47,15 +41,14 @@ const DetalleCliente = () => {
       <h1>Ficha del Cliente</h1>
       <p>Rol actual: {role}</p>
 
-      {mensaje && <p className = 'mensaje-eliminado'>{mensaje}</p>}
+      {mensaje && <p className='mensaje-eliminado'>{mensaje}</p>}
 
       <p>
-        <strong>ID:</strong> {cliente.id}
+        <strong>ID:</strong> {cliente._id || cliente.id}
       </p>
 
       <p>
-        <strong>Nombre:</strong>{" "}
-        {cliente.name.firstname} {cliente.name.lastname}
+        <strong>Nombre:</strong> {cliente.nombre}
       </p>
 
       <p>
@@ -63,29 +56,15 @@ const DetalleCliente = () => {
       </p>
 
       <p>
-        <strong>Teléfono:</strong> {cliente.phone}
-      </p>
-
-      <h2>Dirección</h2>
-
-      <p>
-        <strong>Calle:</strong> {cliente.address.street}
+        <strong>Teléfono:</strong> {cliente.telefono}
       </p>
 
       <p>
-        <strong>Número:</strong> {cliente.address.number}
-      </p>
-
-      <p>
-        <strong>Código Postal:</strong> {cliente.address.zipcode}
-      </p>
-
-      <p>
-        <strong>Ciudad:</strong> {cliente.address.city}
+        <strong>Ciudad:</strong> {cliente.ciudad}
       </p>
 
       {role?.trim() === "Gerencia" && (
-        <button className='btn-eliminar'onClick={eliminarCliente}>
+        <button className='btn-eliminar' onClick={eliminarCliente}>
           Eliminar Cliente
         </button>
       )}
